@@ -2,6 +2,8 @@ package com.roman.ripp.collab;
 
 import java.util.regex.Pattern;
 
+import static com.roman.ripp.Utility.StringContainsIgnoreCase;
+
 public class Review {
 
     class CustomField {
@@ -23,8 +25,6 @@ public class Review {
     int reviewId;
 
     public boolean IsOverdue() {
-        return Pattern.compile(Pattern.quote("(overdue)"), Pattern.CASE_INSENSITIVE)
-                .matcher(displayText)
-                .find();
+        return StringContainsIgnoreCase(displayText, "(overdue)");
     }
 }

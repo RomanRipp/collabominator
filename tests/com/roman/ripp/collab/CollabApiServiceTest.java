@@ -1,13 +1,7 @@
-import com.roman.ripp.collab.CollabApiService;
-import com.roman.ripp.collab.Credentials;
-import com.google.gson.Gson;
+package com.roman.ripp.collab;
+
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
+import static com.roman.ripp.Utility.ReadCredentials;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CollabApiServiceTest {
@@ -21,7 +15,7 @@ class CollabApiServiceTest {
 
     @Test
     void GetReview() {
-        var credentials = ReadCredentials();
+        var credentials = ReadCredentials("testres/Credentials.json");
         if (credentials != null) {
             var apiService = new CollabApiService(credentials);
             var review = apiService.FindReview(14489);
@@ -31,7 +25,7 @@ class CollabApiServiceTest {
 
     @Test
     void GetReviewParticipants() {
-        var credentials = ReadCredentials();
+        var credentials = ReadCredentials("testres/Credentials.json");
         if (credentials != null) {
             var apiService = new CollabApiService(credentials);
             var participants = apiService.GetReviewParticipants(14489);
@@ -42,25 +36,11 @@ class CollabApiServiceTest {
 
     @Test
     void GetReviews() {
-        var credentials = ReadCredentials();
+        var credentials = ReadCredentials("testres/Credentials.json");
         if (credentials != null) {
             var apiService = new CollabApiService(credentials);
             var reviews = apiService.GetReviews();
             assertNotNull(reviews);
         }
-    }
-
-    private Credentials ReadCredentials() {
-        var credentialsFile = new File("testres/com.roman.ripp.collab.Credentials.json");
-        if (credentialsFile.exists()) {
-            var credentialsFilePath = credentialsFile.getAbsolutePath();
-            try {
-                var contents = Files.readString(Paths.get(credentialsFilePath));
-                return new Gson().fromJson(contents, Credentials.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 }
