@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CollabApiServiceTest {
+
     @Test
     void ServerVersion() {
         var apiService = new CollabApiService();
@@ -20,16 +22,29 @@ class CollabApiServiceTest {
     @Test
     void GetReviews() {
         var apiService = new CollabApiService();
-        var credentialsFile = new File("testres/Credentials.json");
-        var credentialsFilePath = credentialsFile.getAbsolutePath();
-        try {
-            var contensts = Files.readString(Paths.get(credentialsFilePath));
-            var jsonObj = new JSONObject(contensts);
-            var reviews = apiService.GetReviews(jsonObj.getString("userId"), jsonObj.getString("ticket"));
+        var credentials = ReadCredentials();
+        if (credentials != null) {
+            var reviews = apiService.GetReviews(credentials.userId, credentials.ticket);
             assertTrue(reviews != null);
-        } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(false);
         }
+    }
+
+    private class Credentials {
+        public String userId;
+        public String ticket;
+    }
+
+    private Credentials ReadCredentials() {
+        var credentialsFile = new File("testres/Credentials.json");
+        if (credentialsFile.exists()) {
+            var credentialsFilePath = credentialsFile.getAbsolutePath();
+            try {
+                var contents = Files.readString(Paths.get(credentialsFilePath));
+                return new Gson().fromJson(contents, Credentials.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 }
