@@ -1,9 +1,9 @@
+import com.roman.ripp.collab.CollabApiService;
+import com.roman.ripp.collab.Credentials;
 import com.google.gson.Gson;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,28 +14,44 @@ class CollabApiServiceTest {
 
     @Test
     void ServerVersion() {
-        var apiService = new CollabApiService();
+        var apiService = new CollabApiService(null);
         var version = apiService.GetVersion();
         assertEquals(version, "12.3.12302");
     }
 
     @Test
-    void GetReviews() {
-        var apiService = new CollabApiService();
+    void GetReview() {
         var credentials = ReadCredentials();
         if (credentials != null) {
-            var reviews = apiService.GetReviews(credentials.userId, credentials.ticket);
-            assertTrue(reviews != null);
+            var apiService = new CollabApiService(credentials);
+            var review = apiService.FindReview(14489);
+            assertNotNull(review);
         }
     }
 
-    private class Credentials {
-        public String userId;
-        public String ticket;
+    @Test
+    void GetReviewParticipants() {
+        var credentials = ReadCredentials();
+        if (credentials != null) {
+            var apiService = new CollabApiService(credentials);
+            var participants = apiService.GetReviewParticipants(14489);
+            assertNotNull(participants);
+            assertTrue(participants.size() > 0);
+        }
+    }
+
+    @Test
+    void GetReviews() {
+        var credentials = ReadCredentials();
+        if (credentials != null) {
+            var apiService = new CollabApiService(credentials);
+            var reviews = apiService.GetReviews();
+            assertNotNull(reviews);
+        }
     }
 
     private Credentials ReadCredentials() {
-        var credentialsFile = new File("testres/Credentials.json");
+        var credentialsFile = new File("testres/com.roman.ripp.collab.Credentials.json");
         if (credentialsFile.exists()) {
             var credentialsFilePath = credentialsFile.getAbsolutePath();
             try {

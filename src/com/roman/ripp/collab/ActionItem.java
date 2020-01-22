@@ -1,4 +1,6 @@
-public class Review {
+package com.roman.ripp.collab;
+
+public class ActionItem {
     String text;
     String reviewText;
     String nextActionText;
