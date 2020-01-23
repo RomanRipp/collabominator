@@ -22,7 +22,7 @@ class ReviewObserverTest {
         collabApiServiceMock = mock(CollabApiService.class);
         when(collabApiServiceMock.GetActionItems()).thenReturn(new ArrayList<ActionItem>());
         var observer = new ReviewObserver(null);
-        var map = observer.GetBadReviewersAndOverdueReviews(collabApiServiceMock);
+        var map = observer.GetBadReviewersAndOverdueActionItems(collabApiServiceMock);
         assertTrue(map.isEmpty());
     }
 
@@ -63,7 +63,7 @@ class ReviewObserverTest {
         }});
         when(collabApiServiceMock.GetReviewParticipants(actionItem.reviewId)).thenReturn(CreateFakeReviewerList());
         var observer = new ReviewObserver(null);
-        var map = observer.GetBadReviewersAndOverdueReviews(collabApiServiceMock);
+        var map = observer.GetBadReviewersAndOverdueActionItems(collabApiServiceMock);
         assertTrue(map.isEmpty());
     }
 
@@ -82,12 +82,12 @@ class ReviewObserverTest {
         when(collabApiServiceMock.GetReviewParticipants(actionItem.reviewId)).thenReturn(CreateFakeReviewerList());
 
         var observer = new ReviewObserver(null);
-        var map = observer.GetBadReviewersAndOverdueReviews(collabApiServiceMock);
+        var map = observer.GetBadReviewersAndOverdueActionItems(collabApiServiceMock);
 
         assertEquals(map.size(), 1);
         assertTrue(map.containsKey("Adolf.Hitler"));
         assertEquals(map.get("Adolf.Hitler").size(), 1);
-        assertEquals(map.get("Adolf.Hitler").get(0), 1);
+        assertEquals(1, map.get("Adolf.Hitler").get(0).reviewId);
     }
 
     private ArrayList<ActionItem> CreateFakeActionItemsList() {
@@ -109,7 +109,7 @@ class ReviewObserverTest {
         when(collabApiServiceMock.GetReviewParticipants(anyInt())).thenReturn(CreateFakeReviewerList());
 
         var observer = new ReviewObserver(null);
-        var map = observer.GetBadReviewersAndOverdueReviews(collabApiServiceMock);
+        var map = observer.GetBadReviewersAndOverdueActionItems(collabApiServiceMock);
         assertEquals(map.size(), 1);
         assertEquals(map.get("Adolf.Hitler").size(), 3);
     }

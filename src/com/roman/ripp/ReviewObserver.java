@@ -1,7 +1,9 @@
 package com.roman.ripp;
 
+import com.roman.ripp.collab.ActionItem;
 import com.roman.ripp.collab.CollabApiService;
 import com.roman.ripp.collab.Credentials;
+import com.roman.ripp.collab.Review;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,29 +21,28 @@ public class ReviewObserver {
         }
     }
 
-    public HashMap<String, ArrayList<Integer>> GetBadReviewersAndOverdueReviews(CollabApiService collabService) {
+    public HashMap<String, ArrayList<ActionItem>> GetBadReviewersAndOverdueActionItems(CollabApiService collabService) {
         var actionItems = collabService.GetActionItems();
-        var badReviewerIdToReviewIds = new HashMap<String, ArrayList<Integer>>();
+        var badReviewerIdToReviews = new HashMap<String, ArrayList<ActionItem>>();
         for (var actionItem : actionItems) {
             if (actionItem.IsOverdue()) {
                 var badReviewers = collabService.GetReviewParticipants(actionItem.reviewId);
                 badReviewers.removeIf(r -> (!r.IsReviewer()));
                 for (var badReviewer : badReviewers) {
                     var badReviewerId = badReviewer.user;
-                    var reviewId = actionItem.reviewId;
-                    badReviewerIdToReviewIds.putIfAbsent(badReviewerId, new ArrayList<Integer>());
-                    badReviewerIdToReviewIds.get(badReviewerId).add(reviewId);
+                    badReviewerIdToReviews.putIfAbsent(badReviewerId, new ArrayList<ActionItem>());
+                    badReviewerIdToReviews.get(badReviewerId).add(actionItem);
                 }
             }
         }
-        return badReviewerIdToReviewIds;
+        return badReviewerIdToReviews;
     }
 
     public void RunOnce()
     {
         var collabService = new CollabApiService(mCredentials);
-        var badReviewerIdToReviewIds = GetBadReviewersAndOverdueReviews(collabService);
-        
+        var badReviewersToActionItems = GetBadReviewersAndOverdueActionItems(collabService);
+
     }
 
     public void Run() {
