@@ -3,14 +3,14 @@ package com.roman.ripp.collab;
 import static com.roman.ripp.Utility.StringContainsIgnoreCase;
 
 public class ActionItem {
-    String text;
-    String reviewText;
-    String nextActionText;
-    String roleText;
-    String relativeUrl;
+    public String text;
+    public String reviewText;
+    public String nextActionText;
+    public String roleText;
+    public String relativeUrl;
     public int reviewId;
-    boolean reviewNeedsCommit;
-    boolean requiresUserAction;
+    public boolean reviewNeedsCommit;
+    public boolean requiresUserAction;
 
     public boolean IsOverdue() {
         return StringContainsIgnoreCase(reviewText, "(overdue)");

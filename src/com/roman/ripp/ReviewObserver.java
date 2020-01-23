@@ -40,20 +40,8 @@ public class ReviewObserver {
     public void RunOnce()
     {
         var collabService = new CollabApiService(mCredentials);
-        var actionItems = collabService.GetActionItems();
-        var badReviewerIdToReviewIds = new HashMap<String, ArrayList<Integer>>();
-        for (var actionItem : actionItems) {
-            if (actionItem.IsOverdue()) {
-                var badReviewers = collabService.GetReviewParticipants(actionItem.reviewId);
-                badReviewers.removeIf(r -> (!r.IsReviewer()));
-                for (var badReviewer : badReviewers) {
-                    var badReviewerId = badReviewer.user;
-                    var reviewId = actionItem.reviewId;
-                    badReviewerIdToReviewIds.putIfAbsent(badReviewerId, new ArrayList<Integer>());
-                    badReviewerIdToReviewIds.get(badReviewerId).add(reviewId);
-                }
-            }
-        }
+        var badReviewerIdToReviewIds = GetBadReviewersAndOverdueReviews(collabService);
+        
     }
 
     public void Run() {
