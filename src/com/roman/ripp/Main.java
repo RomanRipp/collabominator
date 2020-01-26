@@ -3,6 +3,13 @@ package com.roman.ripp;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Hello");
+        if (args.length == 0) {
+            System.out.println("You have to provide path to credentials file.");
+            return;
+        }
+
+        var credentialsPath = args[0];
+        var reviewObserver = new ReviewObserver(credentialsPath);
+        reviewObserver.RunOnce();
     }
 }

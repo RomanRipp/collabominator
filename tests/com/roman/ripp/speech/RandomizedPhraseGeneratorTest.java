@@ -15,7 +15,7 @@ class RandomizedPhraseGeneratorTest {
         var generator = new RandomizedPhraseGenerator();
         var overdueActionItems = new ArrayList<ActionItem>() {{ add(new ActionItem()); }};
         var phrase = generator.GenerateActionItemsOverduePhrase("Adolf.Hitler@nazi_germany.com", overdueActionItems);
-        assertTrue(phrase.contains("Adolf Hitler is late on his review!"));
+        assertTrue(phrase.contains("Adolf Hitler is late on his code review"));
     }
 
     @Test
@@ -26,7 +26,7 @@ class RandomizedPhraseGeneratorTest {
             add(new ActionItem());
         }};
         var phrase = generator.GenerateActionItemsOverduePhrase("Adolf.Hitler@nazi_germany.com", overdueActionItems);
-        assertTrue(phrase.contains("Adolf Hitler is late on his reviews!"));
+        assertTrue(phrase.contains("Adolf Hitler is late on his code reviews"));
     }
 
     @Test

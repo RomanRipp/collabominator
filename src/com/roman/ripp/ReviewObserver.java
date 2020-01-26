@@ -2,31 +2,55 @@ package com.roman.ripp;
 
 import com.roman.ripp.collab.ActionItem;
 import com.roman.ripp.collab.CollabApiService;
-import com.roman.ripp.collab.Credentials;
-import com.roman.ripp.collab.Review;
+import com.roman.ripp.speech.RandomizedPhraseGenerator;
+import com.roman.ripp.speech.TextToSpeechService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.roman.ripp.Utility.ReadCredentials;
-import static java.lang.Thread.sleep;
 
 public class ReviewObserver {
 
-    Credentials mCredentials;
+    CollabApiService mCollabService;
 
     public ReviewObserver(String credentialsPath) {
         if (credentialsPath != null) {
-            this.mCredentials = ReadCredentials(credentialsPath);
+            var credentials = ReadCredentials(credentialsPath);
+            this.mCollabService = new CollabApiService(credentials);
         }
     }
 
-    public HashMap<String, ArrayList<ActionItem>> GetBadReviewersAndOverdueActionItems(CollabApiService collabService) {
-        var actionItems = collabService.GetActionItems();
+    public ReviewObserver(CollabApiService apiService) {
+        this.mCollabService = apiService;
+    }
+
+    public void HandleBadReviewers(
+            HashMap<String, ArrayList<ActionItem>> badReviewersToActionItems,
+            RandomizedPhraseGenerator phraseGenerator,
+            TextToSpeechService ttsService) {
+        if (!badReviewersToActionItems.isEmpty()) {
+            ttsService.Say(phraseGenerator.GenerateGreeting());
+            if (badReviewersToActionItems.size() == 1) {
+                var entry = badReviewersToActionItems.entrySet().iterator().next();
+                var userId = entry.getKey();
+                var overdueItems = entry.getValue();
+                var phrase = phraseGenerator.GenerateActionItemsOverduePhrase(userId, overdueItems);
+                ttsService.Say(phrase);
+            } else {
+                var badReviewerIds = badReviewersToActionItems.keySet();
+                var phrase = phraseGenerator.GenerateActionItemsOverduePhrase(badReviewerIds);
+                ttsService.Say(phrase);
+            }
+        }
+    }
+
+    public HashMap<String, ArrayList<ActionItem>> GetBadReviewersAndOverdueActionItems() {
+        var actionItems = mCollabService.GetActionItems();
         var badReviewerIdToReviews = new HashMap<String, ArrayList<ActionItem>>();
         for (var actionItem : actionItems) {
             if (actionItem.IsOverdue()) {
-                var badReviewers = collabService.GetReviewParticipants(actionItem.reviewId);
+                var badReviewers = mCollabService.GetReviewParticipants(actionItem.reviewId);
                 badReviewers.removeIf(r -> (!r.IsReviewer()));
                 for (var badReviewer : badReviewers) {
                     var badReviewerId = badReviewer.user;
@@ -40,23 +64,13 @@ public class ReviewObserver {
 
     public void RunOnce()
     {
-        var collabService = new CollabApiService(mCredentials);
-        var badReviewersToActionItems = GetBadReviewersAndOverdueActionItems(collabService);
-
-    }
-
-    public void Run() {
-        while (true) {
-            try {
-                RunOnce();
-                sleep(60000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+        try {
+            var phraseGenerator = new RandomizedPhraseGenerator();
+            var ttsService = new TextToSpeechService();
+            var badReviewersToActionItems = GetBadReviewersAndOverdueActionItems();
+            HandleBadReviewers(badReviewersToActionItems, phraseGenerator, ttsService);
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -81,6 +81,12 @@ public class CollabApiService {
         if (mCredentials == null || !mCredentials.IsValid()) {
             throw new RuntimeException("Valid credentials not provided.");
         }
+
+        var request = new JSONArray().put(GetAuth());
+        var response = Post(request).getJSONObject(0);
+        if (response.has("errors")) {
+            throw new RuntimeException("Valid credentials not provided.");
+        }
     }
 
     public Review FindReview(int reviewId) {
