@@ -11,5 +11,7 @@ public class Main {
         var credentialsPath = args[0];
         var reviewObserver = new ReviewObserver(credentialsPath);
         reviewObserver.RunOnce();
+
+        System.exit(0);
     }
 }

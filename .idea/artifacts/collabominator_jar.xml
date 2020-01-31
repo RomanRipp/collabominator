@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="collabominator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/collabominator_jar</output-path>
+    <root id="archive" name="collabominator.jar">
+      <element id="module-output" name="collabominator" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20190722/json-20190722.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/sf/sociaal/freetts/1.2.2/freetts-1.2.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
