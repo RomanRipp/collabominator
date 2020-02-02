@@ -13,34 +13,36 @@ import static com.roman.ripp.Utility.ReadCredentials;
 public class ReviewObserver {
 
     CollabApiService mCollabService;
+    TextToSpeechService mTtsService;
 
     public ReviewObserver(String credentialsPath) {
         if (credentialsPath != null) {
             var credentials = ReadCredentials(credentialsPath);
             this.mCollabService = new CollabApiService(credentials);
+            this.mTtsService = new TextToSpeechService();
         }
     }
 
-    public ReviewObserver(CollabApiService apiService) {
+    public ReviewObserver(CollabApiService apiService, TextToSpeechService ttsService) {
         this.mCollabService = apiService;
+        this.mTtsService = ttsService;
     }
 
     public void HandleBadReviewers(
             HashMap<String, ArrayList<ActionItem>> badReviewersToActionItems,
-            RandomizedPhraseGenerator phraseGenerator,
-            TextToSpeechService ttsService) {
+            RandomizedPhraseGenerator phraseGenerator) {
         if (!badReviewersToActionItems.isEmpty()) {
-            ttsService.Say(phraseGenerator.GenerateGreeting());
+            mTtsService.Say(phraseGenerator.GenerateGreeting());
             if (badReviewersToActionItems.size() == 1) {
                 var entry = badReviewersToActionItems.entrySet().iterator().next();
                 var userId = entry.getKey();
                 var overdueItems = entry.getValue();
                 var phrase = phraseGenerator.GenerateActionItemsOverduePhrase(userId, overdueItems);
-                ttsService.Say(phrase);
+                mTtsService.Say(phrase);
             } else {
                 var badReviewerIds = badReviewersToActionItems.keySet();
                 var phrase = phraseGenerator.GenerateActionItemsOverduePhrase(badReviewerIds);
-                ttsService.Say(phrase);
+                mTtsService.Say(phrase);
             }
         }
     }
@@ -66,9 +68,8 @@ public class ReviewObserver {
     {
         try {
             var phraseGenerator = new RandomizedPhraseGenerator();
-            var ttsService = new TextToSpeechService();
             var badReviewersToActionItems = GetBadReviewersAndOverdueActionItems();
-            HandleBadReviewers(badReviewersToActionItems, phraseGenerator, ttsService);
+            HandleBadReviewers(badReviewersToActionItems, phraseGenerator);
         } catch(Exception e) {
             e.printStackTrace();
         }

@@ -20,11 +20,14 @@ class ReviewObserverTest {
     @Mock
     CollabApiService collabApiServiceMock;
 
+    @Mock
+    TextToSpeechService textToSpeechServiceMock;
+
     @Test
     void TestGetBadReviewersNoActionItems() {
         collabApiServiceMock = mock(CollabApiService.class);
         when(collabApiServiceMock.GetActionItems()).thenReturn(new ArrayList<ActionItem>());
-        var observer = new ReviewObserver(collabApiServiceMock);
+        var observer = new ReviewObserver(collabApiServiceMock, null);
         var map = observer.GetBadReviewersAndOverdueActionItems();
         assertTrue(map.isEmpty());
     }
@@ -65,7 +68,7 @@ class ReviewObserverTest {
             add(actionItem);
         }});
         when(collabApiServiceMock.GetReviewParticipants(actionItem.reviewId)).thenReturn(CreateFakeReviewerList());
-        var observer = new ReviewObserver(collabApiServiceMock);
+        var observer = new ReviewObserver(collabApiServiceMock, null);
         var map = observer.GetBadReviewersAndOverdueActionItems();
         assertTrue(map.isEmpty());
     }
@@ -84,7 +87,7 @@ class ReviewObserverTest {
 
         when(collabApiServiceMock.GetReviewParticipants(actionItem.reviewId)).thenReturn(CreateFakeReviewerList());
 
-        var observer = new ReviewObserver(collabApiServiceMock);
+        var observer = new ReviewObserver(collabApiServiceMock, null);
         var map = observer.GetBadReviewersAndOverdueActionItems();
 
         assertEquals(map.size(), 1);
@@ -111,7 +114,7 @@ class ReviewObserverTest {
         when(collabApiServiceMock.GetActionItems()).thenReturn(CreateFakeActionItemsList());
         when(collabApiServiceMock.GetReviewParticipants(anyInt())).thenReturn(CreateFakeReviewerList());
 
-        var observer = new ReviewObserver(collabApiServiceMock);
+        var observer = new ReviewObserver(collabApiServiceMock, null);
         var map = observer.GetBadReviewersAndOverdueActionItems();
         assertEquals(map.size(), 1);
         assertEquals(map.get("Adolf.Hitler").size(), 3);
@@ -120,50 +123,53 @@ class ReviewObserverTest {
     @Test
     void TestHandleBadReviewersNone() {
         var phraseGenerator = new RandomizedPhraseGenerator();
-        var ttsService = new TextToSpeechService();
+        textToSpeechServiceMock = mock(TextToSpeechService.class);
+        verify(textToSpeechServiceMock, never()).Say(any());
+
         var badReviewersToActionItems = new HashMap<String, ArrayList<ActionItem>>();
 
-        var observer = new ReviewObserver(collabApiServiceMock);
-        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator, ttsService);
+        var observer = new ReviewObserver(collabApiServiceMock, textToSpeechServiceMock);
+        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator);
         assertTrue(true);
     }
 
     @Test
     void TestHandleBadReviewersOne() {
         var phraseGenerator = new RandomizedPhraseGenerator();
-        var ttsService = new TextToSpeechService();
+        textToSpeechServiceMock = mock(TextToSpeechService.class);
         var badReviewersToActionItems = new HashMap<String, ArrayList<ActionItem>>() {{
-            put("Donald.Trump", new ArrayList<ActionItem>(){{ add(new ActionItem()); }});
+            put("Donald.Trump", new ArrayList<>(){{ add(new ActionItem()); }});
         }};
 
-        var observer = new ReviewObserver(collabApiServiceMock);
-        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator, ttsService);
-        assertTrue(true);
+        var observer = new ReviewObserver(collabApiServiceMock, textToSpeechServiceMock);
+        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator);
+        verify(textToSpeechServiceMock, times(2)).Say(anyString());
     }
 
     @Test
     void TestHandleBadReviewersMultiple() {
         var phraseGenerator = new RandomizedPhraseGenerator();
-        var ttsService = new TextToSpeechService();
+        textToSpeechServiceMock = mock(TextToSpeechService.class);
         var badReviewersToActionItems = new HashMap<String, ArrayList<ActionItem>>() {{
-            put("Donald.Trump", new ArrayList<ActionItem>(){{ add(new ActionItem()); }});
-            put("James.Bond", new ArrayList<ActionItem>(){{ add(new ActionItem()); }});
-            put("Mr.Putin", new ArrayList<ActionItem>(){{ add(new ActionItem()); }});
-            put("Jack.Ripper", new ArrayList<ActionItem>(){{ add(new ActionItem()); }});
+            put("Donald.Trump", new ArrayList<>(){{ add(new ActionItem()); }});
+            put("James.Bond", new ArrayList<>(){{ add(new ActionItem()); }});
+            put("Mr.Putin", new ArrayList<>(){{ add(new ActionItem()); }});
+            put("Jack.Ripper", new ArrayList<>(){{ add(new ActionItem()); }});
         }};
-        var observer = new ReviewObserver(collabApiServiceMock);
-        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator, ttsService);
-        assertTrue(true);
+        var observer = new ReviewObserver(collabApiServiceMock, textToSpeechServiceMock);
+        observer.HandleBadReviewers(badReviewersToActionItems, phraseGenerator);
+        verify(textToSpeechServiceMock, times(2)).Say(anyString());
     }
 
     @Test
     void TestRunOnceOneReviewer() {
         collabApiServiceMock = mock(CollabApiService.class);
+        textToSpeechServiceMock = mock(TextToSpeechService.class);
         when(collabApiServiceMock.GetActionItems()).thenReturn(CreateFakeActionItemsList());
         when(collabApiServiceMock.GetReviewParticipants(anyInt())).thenReturn(CreateFakeReviewerList());
 
-        var observer = new ReviewObserver(collabApiServiceMock);
+        var observer = new ReviewObserver(collabApiServiceMock, textToSpeechServiceMock);
         observer.RunOnce();
-        assertTrue(true);
+        verify(textToSpeechServiceMock, times(2)).Say(anyString());
     }
 }
