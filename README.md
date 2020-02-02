@@ -1,6 +1,6 @@
 # collabominator
 
-Is a "for fun" project. Code gets a list of overdue code reviews and anounces revievers and reminds reviewers that they are late.
+Is a "for fun" project. Code gets a list of overdue code reviews and reminds reviewers that they are late.
 It is intended to run on Raspberry PI. 
 
 TODO: 
