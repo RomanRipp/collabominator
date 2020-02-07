@@ -1,43 +1,57 @@
 package com.roman.ripp.speech;
 
-import javax.speech.AudioException;
-import javax.speech.Central;
-import javax.speech.EngineException;
-import javax.speech.synthesis.Synthesizer;
-import javax.speech.synthesis.SynthesizerModeDesc;
-import javax.speech.synthesis.Voice;
-import java.beans.PropertyVetoException;
-import java.util.Locale;
+import com.google.cloud.texttospeech.v1.AudioConfig;
+import com.google.cloud.texttospeech.v1.AudioEncoding;
+import com.google.cloud.texttospeech.v1.SsmlVoiceGender;
+import com.google.cloud.texttospeech.v1.SynthesisInput;
+import com.google.cloud.texttospeech.v1.TextToSpeechClient;
+import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class TextToSpeechService {
 
-    Synthesizer mSynthesizer;
+    TextToSpeechClient mTtsClient;
+    AudioConfig mAudioConfig;
+    VoiceSelectionParams mVoice;
 
     public TextToSpeechService() {
         try {
-            System.setProperty(
-                    "freetts.voices",
-                    "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
-            Central.registerEngineCentral("com.sun.speech.freetts.jsapi.FreeTTSEngineCentral");
-
-            var modeDescription = new SynthesizerModeDesc(Locale.US);
-            mSynthesizer = Central.createSynthesizer(modeDescription);
-
-            mSynthesizer.allocate();
-            var engineProperties = mSynthesizer.getSynthesizerProperties();
-            engineProperties.setVolume(1);
-            engineProperties.setSpeakingRate(140);
-        } catch (EngineException | PropertyVetoException e) {
+            mTtsClient = TextToSpeechClient.create();
+            mVoice = VoiceSelectionParams.newBuilder()
+                    .setLanguageCode("en-GB")
+                    .setSsmlGender(SsmlVoiceGender.MALE)
+                    .setName("en-GB-Standard-B")
+                    .build();
+            mAudioConfig = AudioConfig.newBuilder()
+                    .setAudioEncoding(AudioEncoding.MP3)
+                    .build();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void Say(String phrase) {
         try {
-            mSynthesizer.resume();
-            mSynthesizer.speakPlainText(phrase, null);
-            mSynthesizer.waitEngineState(Synthesizer.QUEUE_EMPTY);
-        } catch (AudioException | InterruptedException e) {
+            var input = SynthesisInput.newBuilder()
+                    .setText(phrase)
+                    .build();
+
+            var response = mTtsClient.synthesizeSpeech(input, mVoice,
+                    mAudioConfig);
+
+            var audioContents = response.getAudioContent();
+
+            var targetStream = new ByteArrayInputStream(audioContents.toByteArray());
+
+            Player playMP3;
+            playMP3 = new Player(targetStream);
+            playMP3.play();
+
+        } catch (JavaLayerException e) {
             e.printStackTrace();
         }
     }
