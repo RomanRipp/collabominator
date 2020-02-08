@@ -30,7 +30,6 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-texttospeech</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -65,19 +64,27 @@
                 </configuration>
             </plugin>
             <plugin>
-            <!-- Build an executable JAR -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>3.1.0</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>com.roman.ripp.Main</mainClass>
                         </manifest>
                     </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -91,5 +98,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

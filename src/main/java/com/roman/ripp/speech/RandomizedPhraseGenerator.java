@@ -30,8 +30,6 @@ public class RandomizedPhraseGenerator {
                 add("This call may be recorded for training purposes.");
                 add("Howdy, howdy ,howdy!");
                 add("I'm Batman");
-                add("At least, we meet for the first time for the last time!");
-                add("Hello, who's there, I'm talking.");
                 add("You know who this is.");
                 add("Yo, yo, yo Humans");
                 add("What is up, Humans");
